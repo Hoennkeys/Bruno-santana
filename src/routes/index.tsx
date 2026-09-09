@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Menu, X, Scissors, Sparkles, MapPin, Clock, Instagram } from "lucide-react";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import brunoPortrait from "@/assets/bruno-portrait.jpg.asset.json";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/tabs";
+import brunoPortrait from "@/assets/bruno-portrait.jpg";
 import corteImg from "@/assets/servico-corte.jpg";
 import barbaImg from "@/assets/servico-barba.jpg";
 import sobrancelhaImg from "@/assets/servico-sobrancelha.jpg";
@@ -331,7 +331,7 @@ function Sobre() {
             <div className="absolute -inset-3 rounded-3xl border border-gold/20" />
             <div className="overflow-hidden rounded-3xl border border-gold/30">
               <img
-                src={brunoPortrait.url}
+                src={brunoPortrait}
                 alt="Bruno Santana, barbeiro"
                 width={656}
                 height={527}
