@@ -101,7 +101,7 @@ type Item = {
 
 const services: Item[] = [
   {
-    name: "Corte Degradê",
+    name: "Corte",
     desc: "Transição precisa e moderna, feita sob medida para o seu estilo.",
     price: "R$ 50",
     img: corteImg,
