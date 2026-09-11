@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Menu, X, Scissors, Sparkles, MapPin, Clock, Instagram } from "lucide-react";
+import { Menu, X, Scissors, Sparkles, MapPin, Clock } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/tabs";
+import { ClipperBackground } from "@/components/ClipperBackground";
 import brunoPortrait from "@/assets/bruno-portrait.jpg";
 import corteImg from "@/assets/servico-corte.jpg";
 import barbaImg from "@/assets/servico-barba.jpg";
@@ -11,6 +12,8 @@ import gelImg from "@/assets/produto-gel.jpg";
 import cremeImg from "@/assets/produto-creme.jpg";
 import pomadaImg from "@/assets/produto-pomada.jpg";
 import oleoImg from "@/assets/produto-oleo.jpg";
+import proteseImg from "@/assets/produto-protese.jpg";
+import minoxidilImg from "@/assets/produto-minoxidil.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -121,12 +124,24 @@ const services: Item[] = [
   {
     name: "Pacote Completo",
     desc: "Corte, barba e sobrancelha — a experiência Bruno Santana completa.",
-    price: "R$ 110",
+    price: "R$ 100",
     img: pacoteImg,
   },
 ];
 
 const products: Item[] = [
+  {
+    name: "Prótese Capilar Premium",
+    desc: "Confecção e personalização sob medida com fios naturais de alta densidade.",
+    price: "R$ 450",
+    img: proteseImg,
+  },
+  {
+    name: "Tônico Minoxidil 5%",
+    desc: "Fórmula de alta eficácia para estímulo de crescimento de barba e cabelo.",
+    price: "R$ 85",
+    img: minoxidilImg,
+  },
   {
     name: "Gel Modelador",
     desc: "Fixação forte com brilho controlado para um visual impecável.",
@@ -272,48 +287,189 @@ function Navbar() {
   );
 }
 
+/* ---------- Dynamic Circuit Pattern & Particle Overlay Canvas ---------- */
+function HeroCanvas() {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let animationFrameId: number;
+    let width = (canvas.width = canvas.parentElement?.clientWidth || window.innerWidth);
+    let height = (canvas.height = canvas.parentElement?.clientHeight || window.innerHeight);
+
+    const handleResize = () => {
+      if (!canvas || !canvas.parentElement) return;
+      width = canvas.width = canvas.parentElement.clientWidth;
+      height = canvas.height = canvas.parentElement.clientHeight;
+    };
+    window.addEventListener("resize", handleResize);
+
+    // Particle system for golden orbital trail & cyan energy sparks
+    const particlesCount = 65;
+    const particles = Array.from({ length: particlesCount }, (_, i) => {
+      const isCyan = i % 4 === 0;
+      return {
+        x: Math.random() * width,
+        y: Math.random() * height,
+        radius: Math.random() * 2 + 0.8,
+        speedX: (Math.random() - 0.5) * 0.8,
+        speedY: (Math.random() - 0.5) * 0.8 - 0.2,
+        color: isCyan ? "rgba(0, 229, 255, " : "rgba(212, 175, 55, ",
+        orbitAngle: Math.random() * Math.PI * 2,
+        orbitRadius: Math.random() * 170 + 110,
+      };
+    });
+
+    let time = 0;
+
+    const render = () => {
+      time += 0.02;
+      ctx.clearRect(0, 0, width, height);
+
+      const centerX = width / 2;
+      const centerY = height * 0.35;
+
+      // Draw subtle orbital ring around scissors position
+      ctx.save();
+      ctx.beginPath();
+      ctx.ellipse(centerX, centerY, 200, 85, Math.PI / 8, 0, Math.PI * 2);
+      ctx.strokeStyle = "rgba(212, 175, 55, 0.18)";
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([8, 12]);
+      ctx.stroke();
+      ctx.restore();
+
+      // Render floating particles
+      particles.forEach((p, idx) => {
+        if (idx % 2 === 0) {
+          p.orbitAngle += 0.01;
+          p.x = centerX + Math.cos(p.orbitAngle) * p.orbitRadius;
+          p.y = centerY + Math.sin(p.orbitAngle) * (p.orbitRadius * 0.45);
+        } else {
+          p.x += p.speedX;
+          p.y += p.speedY;
+
+          if (p.x < 0) p.x = width;
+          if (p.x > width) p.x = 0;
+          if (p.y < 0) p.y = height;
+          if (p.y > height) p.y = 0;
+        }
+
+        const currentAlpha = (Math.sin(time * 2 + idx) + 1) / 2 * 0.6 + 0.25;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = p.color + currentAlpha + ")";
+        ctx.shadowColor = p.color === "rgba(0, 229, 255, " ? "#00e5ff" : "#d4af37";
+        ctx.shadowBlur = 8;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      });
+
+      animationFrameId = requestAnimationFrame(render);
+    };
+
+    render();
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="pointer-events-none absolute inset-0 z-0 h-full w-full opacity-80"
+    />
+  );
+}
+
 function Hero() {
   return (
     <section
       id="topo"
-      className="relative flex min-h-screen items-center justify-center overflow-hidden bg-charcoal pt-16"
+      className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-transparent pt-24 pb-16"
     >
-      {/* glow */}
-      <div className="pointer-events-none absolute left-1/2 top-1/3 h-[40rem] w-[40rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gold/10 blur-[120px]" />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_30%,rgba(201,168,76,0.08),transparent_60%)]" />
+      {/* Background Digital Circuit Grid Pattern */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-15"
+        style={{
+          backgroundImage: `
+            linear-gradient(to right, rgba(0, 229, 255, 0.08) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(0, 229, 255, 0.08) 1px, transparent 1px)
+          `,
+          backgroundSize: "48px 48px",
+          maskImage: "radial-gradient(circle at 50% 40%, black 30%, transparent 80%)",
+          WebkitMaskImage: "radial-gradient(circle at 50% 40%, black 30%, transparent 80%)",
+        }}
+      />
 
-      <div className="relative z-10 mx-auto max-w-3xl px-4 text-center">
+      {/* Dramatic Dual Neon Ambient Glows behind 3D Scissor */}
+      <div className="pointer-events-none absolute left-1/2 top-1/3 h-[36rem] w-[36rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-gold/15 blur-[140px]" />
+      <div className="pointer-events-none absolute left-1/2 top-1/4 h-[24rem] w-[24rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[rgba(0,229,255,0.12)] blur-[100px]" />
+
+      {/* Canvas for Particle Orbit Trails and Energy Sparks */}
+      <HeroCanvas />
+
+      <div className="relative z-10 mx-auto flex w-full max-w-4xl flex-col items-center px-4 text-center">
+        {/* Tagline Badge */}
         <Reveal>
-          <span className="inline-flex items-center gap-2 rounded-full border border-gold/30 px-4 py-1.5 text-xs font-medium uppercase tracking-widest text-gold">
-            <Scissors className="h-3.5 w-3.5" /> Barbearia Futurista
+          <span className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-charcoal-2/80 px-4 py-1.5 text-xs font-medium uppercase tracking-widest text-gold shadow-lg shadow-gold/10 backdrop-blur-md">
+            <Scissors className="h-3.5 w-3.5 text-cyan-400" /> BARBEARIA FUTURISTA 3D
           </span>
         </Reveal>
+
+        {/* 3D Scissor Visual Stage Area */}
+        <Reveal className="w-full flex justify-center my-6">
+          <div className="relative flex items-center justify-center h-48 sm:h-64 w-full">
+            {/* Spinning Golden Orbit Rings framing the 3D background scissor */}
+            <div className="pointer-events-none absolute h-[260px] w-[260px] sm:h-[320px] sm:w-[320px] rounded-full border border-gold/30 border-dashed animate-spin-orbital" />
+            <div className="pointer-events-none absolute h-[300px] w-[300px] sm:h-[360px] sm:w-[360px] rounded-full border border-cyan-400/20 animate-spin-orbital [animation-direction:reverse] [animation-duration:28s]" />
+          </div>
+        </Reveal>
+
+        {/* Title with gold reflection */}
         <Reveal>
-          <h1 className="mt-6 font-display text-5xl font-bold leading-tight tracking-tight text-foreground sm:text-6xl md:text-7xl">
-            O Futuro do <span className="text-gold">Seu Estilo</span>
+          <h1 className="font-display text-5xl font-bold leading-tight tracking-tight text-foreground sm:text-6xl md:text-7xl drop-shadow-[0_4px_20px_rgba(212,175,55,0.25)]">
+            BRUNO <span className="text-gold bg-gradient-to-r from-gold via-yellow-200 to-gold bg-clip-text text-transparent">SANTANA</span>
           </h1>
         </Reveal>
+
+        {/* Slogan */}
         <Reveal>
-          <p className="mx-auto mt-6 max-w-xl text-base text-muted-foreground sm:text-lg">
-            Sou Bruno Santana. Uno a tradição da barbearia a uma experiência
-            moderna e diferenciada — precisão, atitude e estilo em cada corte.
+          <h2 className="mt-2 font-display text-2xl font-semibold tracking-wide text-cyan-400/90 sm:text-3xl">
+            O Futuro do Seu Estilo
+          </h2>
+        </Reveal>
+
+        {/* Subtitle Description */}
+        <Reveal>
+          <p className="mx-auto mt-4 max-w-xl text-base text-muted-foreground sm:text-lg">
+            Uno a alta precisão biomecânica e o design vanguardista a um atendimento exclusivo — sofisticação, atitude e excelência em cada detalhe.
           </p>
         </Reveal>
+
+        {/* Action Buttons */}
         <Reveal>
-          <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row w-full sm:w-auto">
             <a
               href="#vitrine"
-              className="w-full rounded-lg bg-gold px-7 py-3 text-sm font-semibold text-gold-foreground transition-colors hover:bg-gold-soft sm:w-auto"
+              className="w-full rounded-lg bg-gold px-8 py-3.5 text-sm font-semibold text-gold-foreground transition-all duration-300 hover:bg-gold-soft hover:shadow-[0_0_20px_rgba(212,175,55,0.4)] hover:-translate-y-0.5 sm:w-auto"
             >
               Ver Serviços & Produtos
             </a>
             <a
-              href={waLink("Olá, Bruno! Gostaria de agendar um horário.")}
+              href={waLink("Olá, Bruno! Gostaria de agendar um horário na Barbearia Futurista.")}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex w-full items-center justify-center gap-2 rounded-lg border border-gold/40 px-7 py-3 text-sm font-semibold text-gold transition-colors hover:bg-gold/10 sm:w-auto"
+              className="flex w-full items-center justify-center gap-2 rounded-lg border border-cyan-400/40 bg-charcoal-2/60 px-8 py-3.5 text-sm font-semibold text-cyan-300 backdrop-blur-md transition-all duration-300 hover:border-cyan-400 hover:bg-cyan-950/30 hover:shadow-[0_0_20px_rgba(0,229,255,0.3)] hover:-translate-y-0.5 sm:w-auto"
             >
-              <WhatsAppIcon className="h-4 w-4" /> Falar no WhatsApp
+              <WhatsAppIcon className="h-4 w-4 text-cyan-400" /> Falar no WhatsApp
             </a>
           </div>
         </Reveal>
@@ -506,7 +662,8 @@ function Footer() {
 
 function Index() {
   return (
-    <div className="min-h-screen bg-charcoal font-sans text-foreground">
+    <div className="relative min-h-screen bg-charcoal font-sans text-foreground">
+      <ClipperBackground />
       <Navbar />
       <main>
         <Hero />
